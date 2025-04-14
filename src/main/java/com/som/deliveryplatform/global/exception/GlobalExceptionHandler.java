@@ -1,28 +1,34 @@
 package com.som.deliveryplatform.global.exception;
 
+import com.som.deliveryplatform.global.common.ResponseCode;
+import com.som.deliveryplatform.global.common.ResponseDto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<String> handleValidationException(MethodArgumentNotValidException e) {
-        String errorMessage = e.getBindingResult().getAllErrors().get(0).getDefaultMessage();
+    public ResponseEntity<ResponseDto<Void>> handleValidationException(MethodArgumentNotValidException e) {
+        log.warn("Validation exception: {}", e.getMessage());
 
         // 유효성 검사 실패시
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body("Validation fail: " + errorMessage);
+                .body(ResponseDto.of(ResponseCode.VALIDATION_FAILED));
     }
 
     @ExceptionHandler(Exception.class)
-    protected ResponseEntity<String> handleException(Exception ex) {
+    protected ResponseEntity<ResponseDto<Void>> handleException(Exception ex) {
+        log.error("UnExpected server error", ex);   // print full stack trace
+
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Internal Server Error: " + ex.getMessage());
+                .body(ResponseDto.of(ResponseCode.INTERNAL_SERVER_ERROR));
     }
 }
