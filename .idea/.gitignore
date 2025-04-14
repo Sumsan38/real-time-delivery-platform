@@ -20,9 +20,12 @@ target/
 .gradle/
 build/
 
-# IDE
+# IntelliJ IDEA
 .idea/
 *.iml
+*.ipr
+*.iws
+out/
 .vscode/
 
 # Logs
