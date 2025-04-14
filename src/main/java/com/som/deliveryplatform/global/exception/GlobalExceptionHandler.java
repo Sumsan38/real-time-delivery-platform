@@ -16,7 +16,7 @@ public class GlobalExceptionHandler {
         // 유효성 검사 실패시
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body("Validation faile: " + errorMessage);
+                .body("Validation fail: " + errorMessage);
     }
 
     @ExceptionHandler(Exception.class)
