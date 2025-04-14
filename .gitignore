@@ -18,7 +18,7 @@ bin/
 !**/src/test/**/bin/
 
 ### IntelliJ IDEA ###
-.idea
+.idea/
 *.iws
 *.iml
 *.ipr
@@ -35,3 +35,14 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# Node.js
+node_modules/
+package-lock.json
+
+# System
+.DS_Store
+*.log
+
+# Gradle
+.gradle/
