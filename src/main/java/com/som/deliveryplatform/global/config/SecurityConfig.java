@@ -2,6 +2,7 @@ package com.som.deliveryplatform.global.config;
 
 import com.som.deliveryplatform.global.auth.handler.OAuth2LoginFailureHandler;
 import com.som.deliveryplatform.global.auth.handler.OAuth2LoginSuccessHandler;
+import com.som.deliveryplatform.global.auth.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +16,7 @@ public class SecurityConfig {
 
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
+    private final CustomOAuth2UserService customOAuth2UserService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -28,6 +30,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated()           // 그 외 인증 필요
                 )
                 .oauth2Login(oauth2 -> oauth2   // OAuth2 로그인 설정
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOAuth2UserService))      // OAuth2 로그인 완료 후 AccessToken으로 사용자 정보를 조회하는 서비스 지정
                         .successHandler(oAuth2LoginSuccessHandler)
                         .failureHandler(oAuth2LoginFailureHandler)
                 );
