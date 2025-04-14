@@ -1,5 +1,8 @@
 package com.som.deliveryplatform.global.config;
 
+import com.som.deliveryplatform.global.auth.handler.OAuth2LoginFailureHandler;
+import com.som.deliveryplatform.global.auth.handler.OAuth2LoginSuccessHandler;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -7,7 +10,11 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -21,7 +28,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated()           // 그 외 인증 필요
                 )
                 .oauth2Login(oauth2 -> oauth2   // OAuth2 로그인 설정
-                        .defaultSuccessUrl("/")                 // 로그인 성공시 이동 URL
+                        .successHandler(oAuth2LoginSuccessHandler)
+                        .failureHandler(oAuth2LoginFailureHandler)
                 );
 
         return http.build();
