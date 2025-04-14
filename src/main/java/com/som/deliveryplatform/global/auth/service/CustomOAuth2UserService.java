@@ -16,6 +16,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+//        userRequest.getClientRegistration().getRegistrationId();  // google, naver, kakao
+
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
         // 1. Provider로부터 받은 사용자 정보

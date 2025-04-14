@@ -3,5 +3,6 @@ create table users (
     email VARCHAR(255) NOT NULL UNIQUE,
     name VARCHAR(100) NOT NULL,
     role VARCHAR(50) DEFAULT 'user',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    created_at DATETIME,
+    updated_at DATETIME
 );
