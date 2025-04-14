@@ -1,0 +1,26 @@
+{
+  "name": "real-time-delivery-platform",
+  "version": "1.0.0",
+  "description": "대규모 실시간 배송 플랫폼 백엔드 사이드 프로젝트",
+  "main": "index.js",
+  "scripts": {
+    "prepare": "husky install",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sumsan38/real-time-delivery-platform.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Sumsan38/real-time-delivery-platform/issues"
+  },
+  "homepage": "https://github.com/Sumsan38/real-time-delivery-platform#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.0",
+    "@commitlint/config-conventional": "^19.8.0",
+    "husky": "^9.1.7"
+  }
+}
