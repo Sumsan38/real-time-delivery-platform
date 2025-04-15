@@ -1,6 +1,9 @@
 server:
   port: 8080
 
+jwt:
+  secret: my-jwt-local-secret-key-should-be-very-secure-and-long
+
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/test_db
