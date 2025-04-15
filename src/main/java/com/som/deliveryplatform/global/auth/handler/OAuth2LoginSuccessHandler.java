@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.common.contenttype.ContentType;
 import com.som.deliveryplatform.domain.user.model.Role;
 import com.som.deliveryplatform.global.auth.dto.LoginSuccessResponse;
+import com.som.deliveryplatform.global.auth.jwt.JwtProperties;
+import com.som.deliveryplatform.global.auth.jwt.JwtProvider;
 import com.som.deliveryplatform.global.auth.principal.UserPrincipal;
 import com.som.deliveryplatform.global.common.ResponseCode;
 import com.som.deliveryplatform.global.common.ResponseDto;
@@ -25,9 +27,10 @@ import java.io.IOException;
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final ObjectMapper objectMapper;
+    private final JwtProperties jwtProperties;
+    private final JwtProvider jwtProvider;
 
     private static final String TOKEN_COOKIE_NAME = "access_token";
-    private static final int COOKIE_EXPIRATION = 60 * 60 * 24 * 3;  // 3일
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -36,13 +39,13 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
 
         // JWT 토큰 생성
-        String token = generateJWTToken(principal);
+        String token = jwtProvider.generateJWTToken(principal);
 
         // JWT 토큰 쿠키에 저장 (HttpOnly)
         Cookie cookie = new Cookie(TOKEN_COOKIE_NAME, token);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
-        cookie.setMaxAge(COOKIE_EXPIRATION);
+        cookie.setMaxAge(jwtProperties.getExpirationSeconds());
 
         response.addCookie(cookie);
 
@@ -56,10 +59,5 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         response.setContentType(ContentType.APPLICATION_JSON.getType());
         response.setStatus(HttpServletResponse.SC_OK);
         response.getWriter().write(objectMapper.writeValueAsString(responseBody));
-    }
-
-    private String generateJWTToken(UserPrincipal principal) {
-        // TODO: 실제 JWT 로직 교체 예정
-        return principal.getEmail() + "_mock_token";
     }
 }

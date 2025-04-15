@@ -12,4 +12,8 @@ public class JwtProperties {
     private final String secret;
     private final long expiration;
 
+    public int getExpirationSeconds() {
+        return (int) (expiration / 1000);
+    }
+
 }
