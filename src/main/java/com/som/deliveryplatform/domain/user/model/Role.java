@@ -12,6 +12,10 @@ public enum Role {
     ADMIN("ROLE_ADMIN"),
 
     ;
+
     private final String key;
 
+    public static Role valueOfKey(String roleKey) {
+        return Role.valueOf(roleKey.replace("ROLE_", ""));
+    }
 }

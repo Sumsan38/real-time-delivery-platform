@@ -21,6 +21,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+import static com.som.deliveryplatform.global.auth.model.TokenModel.TOKEN_COOKIE_NAME;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -29,8 +31,6 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private final ObjectMapper objectMapper;
     private final JwtProperties jwtProperties;
     private final JwtProvider jwtProvider;
-
-    private static final String TOKEN_COOKIE_NAME = "access_token";
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,

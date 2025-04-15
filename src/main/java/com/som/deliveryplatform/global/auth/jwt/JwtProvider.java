@@ -1,6 +1,8 @@
 package com.som.deliveryplatform.global.auth.jwt;
 
+import com.som.deliveryplatform.domain.user.model.Role;
 import com.som.deliveryplatform.global.auth.principal.UserPrincipal;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -31,6 +33,18 @@ public class JwtProvider {
                 .setExpiration(expiry)
                 .signWith(securityKey, SignatureAlgorithm.HS256)
                 .compact();
+    }
 
+    public Claims parseToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(securityKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    public Role extractRole(Claims claims) {
+        String roleKey = claims.get("role", String.class);
+        return Role.valueOfKey(roleKey);
     }
 }
