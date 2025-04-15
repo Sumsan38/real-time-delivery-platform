@@ -1,5 +1,6 @@
 package com.som.deliveryplatform.global.auth.principal;
 
+import com.som.deliveryplatform.domain.user.model.Role;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
@@ -15,11 +16,11 @@ public class UserPrincipal implements OAuth2User {
 
     private final Long id;
     private final String email;
-    private final String role;
+    private final Role role;
     private final Map<String, Object> attributes;
 
     @Builder
-    public UserPrincipal(Long id, String email, String role, Map<String, Object> attributes) {
+    public UserPrincipal(Long id, String email, Role role, Map<String, Object> attributes) {
         this.id = id;
         this.email = email;
         this.role = role;
@@ -28,7 +29,7 @@ public class UserPrincipal implements OAuth2User {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority(role));
+        return Collections.singletonList(new SimpleGrantedAuthority(role.getKey()));
     }
 
     @Override

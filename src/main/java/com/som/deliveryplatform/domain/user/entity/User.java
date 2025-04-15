@@ -1,5 +1,6 @@
 package com.som.deliveryplatform.domain.user.entity;
 
+import com.som.deliveryplatform.domain.user.model.Role;
 import com.som.deliveryplatform.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -21,7 +22,8 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false)
     private String email;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
-    private String role;
+    private Role role;
 
 }

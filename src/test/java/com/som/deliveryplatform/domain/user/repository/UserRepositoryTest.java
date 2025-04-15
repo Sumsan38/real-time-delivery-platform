@@ -1,6 +1,7 @@
 package com.som.deliveryplatform.domain.user.repository;
 
 import com.som.deliveryplatform.domain.user.entity.User;
+import com.som.deliveryplatform.domain.user.model.Role;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ class UserRepositoryTest {
         // given
         String email = "test@test.com";
         userRepository.save(User.builder().email(email)
-                .role("ROLE_USER")
+                .role(Role.USER)
                 .build());
 
         // when
