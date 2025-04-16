@@ -1,4 +1,6 @@
 package com.som.deliveryplatform.domain.user.dto.response;
 
-public record MeResponse() {
+import com.som.deliveryplatform.domain.user.model.Role;
+
+public record MeResponse(String email, Role role) {
 }
