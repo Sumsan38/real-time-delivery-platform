@@ -50,5 +50,17 @@ class JwtAuthenticationFilterTest {
                 .andExpect(jsonPath("$.data.role").value(testRole.name()));
     }
 
+    @Test
+    @DisplayName("잘못된 JWT 쿠키일 경우 인증 실패")
+    void shouldReturn401WhenInvalidCookie() throws Exception {
+        // given
+        MockCookie cookie = new MockCookie("access_token", "invalid.token.value");
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+
+        // when & then
+        mockMvc.perform(get("/api/auth/me").cookie(cookie))
+                .andExpect(status().isUnauthorized());
+    }
 
 }
