@@ -63,4 +63,12 @@ class JwtAuthenticationFilterTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    @Test
+    @DisplayName("JWT 쿠키 없이 요청시 인증 실패")
+    void shouldReturn401WhenNotJwtCookie() throws Exception {
+        // when &  then
+        mockMvc.perform(get("/api/auth/me"))
+                .andExpect(status().isUnauthorized());
+    }
+
 }
