@@ -24,12 +24,12 @@ public class ProductCacheService {
     public List<ProductResponse> getCachedProductList() {
         try {
             String json = (String) redisTemplate.opsForValue().get(PRODUCT_LIST_CACHE_KEY);
-            if (json == null) return List.of();
+            if (json == null) return null;
 
             return objectMapper.readValue(json, new TypeReference<>() {});
         } catch (JsonProcessingException e) {
             log.warn("fail to read product list from cache: {}", e.getMessage());
-            return List.of();
+            return null;
         }
     }
 
