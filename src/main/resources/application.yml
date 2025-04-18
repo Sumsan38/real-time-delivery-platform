@@ -7,4 +7,5 @@ jwt:
   expiration: 259200000  # 3일 (단위: 밀리초)
 
 redis:
-  ttl: 5
+  ttl:
+    product-list: 5
