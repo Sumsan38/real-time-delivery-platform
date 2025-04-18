@@ -16,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductCacheService {
 
-    private static final String PRODUCT_LIST_CACHE_KEY = "product:list";
+    public static final String PRODUCT_LIST_CACHE_KEY = "product:list";
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
