@@ -3,6 +3,7 @@ package com.som.deliveryplatform.domain.product.service.impl;
 import com.som.deliveryplatform.domain.product.dto.response.ProductResponse;
 import com.som.deliveryplatform.domain.product.entity.Product;
 import com.som.deliveryplatform.domain.product.repository.ProductRepository;
+import com.som.deliveryplatform.domain.product.service.ProductCacheService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -22,6 +23,9 @@ class ProductServiceImplTest {
     @InjectMocks
     private ProductServiceImpl productService;
 
+    @Mock
+    private ProductCacheService productCacheService;
+
     public ProductServiceImplTest() {
         MockitoAnnotations.openMocks(this); // mock 초기화
     }
@@ -34,6 +38,8 @@ class ProductServiceImplTest {
         Product product2 = Product.builder().id(2L).name("product2").stock(20).build();
         List<Product> products = List.of(product1,product2);
         when(productRepository.findAll()).thenReturn(products);
+        // cached miss 설정
+        when(productCacheService.getCachedProductList()).thenReturn(null);
 
         // when
         List<ProductResponse> result = productService.findAll();
@@ -43,4 +49,25 @@ class ProductServiceImplTest {
         assertThat(result).hasSize(2);
         assertThat(result.stream().findFirst().get().name()).isEqualTo(product1.getName());
     }
+
+
+    @Test
+    @DisplayName("캐시가 존재할 경우 DB 조회 없이 캐시 데이터 반환")
+    void shouldReturnProductListFromCache() {
+        // given
+        List<ProductResponse> cached = List.of(
+                ProductResponse.of(Product.builder().name("cachedProduct").price(1000).stock(5).build())
+        );
+        when(productCacheService.getCachedProductList()).thenReturn(cached);
+
+        // when
+        List<ProductResponse> result = productService.findAll();
+
+        // then
+        verify(productCacheService).getCachedProductList();
+        verify(productRepository, never()).findAll();
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).name()).isEqualTo("cachedProduct");
+    }
+
 }
