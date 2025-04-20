@@ -120,10 +120,6 @@ com.som.deliveryplatform
 ---
 
 ## 👋 Author
-SM N
+[SM N](https://github.com/Sumsan38)
 
 📧 Email: ndanl4647@gmail.com
-
-📌 GitHub: [https://github.com/som-bob](https://github.com/Sumsan38)
-
-
