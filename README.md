@@ -103,7 +103,6 @@ com.som.deliveryplatform
 ## ⚙️ 개발 원칙 및 구조 설계
 
 - 모든 서비스는 interface 분리 설계 (특별한 사유가 있는 경우에만 예외)
-- Role 정보는 `String` 대신 `Enum` 사용
 - 모든 응답은 `ResponseDto` 기반 JSON 포맷
 - 인증 실패 시 JSON 형태로 일관된 에러 반환
 - 쿠키는 `HttpOnly` 속성을 이용해 클라이언트 접근 차단
