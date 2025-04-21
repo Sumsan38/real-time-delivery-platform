@@ -32,4 +32,12 @@ public class ProductController {
 
         return ResponseEntity.ok(ResponseDto.of(ResponseCode.SUCCESS, productResponse));
     }
+
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<ResponseDto<ProductResponse>> updateProduct(@PathVariable Long id,
+                                                                      @Valid @RequestBody ProductRequest request) {
+        ProductResponse productResponse = productService.update(id, request);
+
+        return ResponseEntity.ok(ResponseDto.of(ResponseCode.SUCCESS, productResponse));
+    }
 }
