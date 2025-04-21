@@ -35,8 +35,16 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponse findById(Long id) {
+        ProductResponse cached = productCacheService.getCachedProductDetail(id);
+        if(cached != null) {
+            return cached;
+        }
+
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("존재하지 않는 상품입니다."));
-        return ProductResponse.of(product);
+        ProductResponse response = ProductResponse.of(product);
+
+        productCacheService.setCachedProductDetail(id, response);
+        return response;
     }
 }
