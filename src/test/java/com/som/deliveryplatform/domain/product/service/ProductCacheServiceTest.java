@@ -1,16 +1,15 @@
 package com.som.deliveryplatform.domain.product.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.som.deliveryplatform.domain.product.dto.response.ProductResponse;
 import com.som.deliveryplatform.domain.product.entity.Product;
+import com.som.deliveryplatform.global.config.RedisTtlProperties;
+import com.som.deliveryplatform.global.util.redis.RedisCacheTemplate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -20,11 +19,16 @@ import java.time.Duration;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ActiveProfiles("test")
 class ProductCacheServiceTest {
+
+    private ProductCacheService productCacheService;
 
     @Mock
     private RedisTemplate<String, Object> redisTemplate;
@@ -32,81 +36,77 @@ class ProductCacheServiceTest {
     @Mock
     private ValueOperations<String, Object> valueOperations;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @Mock
+    private RedisCacheTemplate redisCacheTemplate;
 
     @Autowired
-    private ProductCacheService productCacheService;
+    private RedisTtlProperties redisTtlProperties;
 
-    @Value("${redis.ttl.product-list}")
-    private int ttl;
+    private Duration expectedTtl;
 
     @BeforeEach
     void setUp() {
-        // RedisTemplate의 opsForValue()가 반환될 객체를 지정
+        MockitoAnnotations.openMocks(this);
+        expectedTtl = Duration.ofMinutes(redisTtlProperties.getProductList());
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+
+        productCacheService = new ProductCacheService(redisCacheTemplate, redisTtlProperties);
     }
 
     @Test
-    @DisplayName("상품 목록 저장 캐싱 성공")
-    void shouldSetProductListToCache() throws JsonProcessingException {
+    @DisplayName("상품 목록을 캐시에 저장한다(TTL 포함)")
+    void shouldSetProductListToCache() {
         // given
-        List<ProductResponse> responses = List.of(
-                ProductResponse.of(Product.builder().id(1L).name("product1").price(1000).stock(5).build())
-        );
+        List<ProductResponse> products =
+                List.of(ProductResponse.of(Product.builder().id(1L).name("product1").price(1000).stock(10).build()));
 
         // when
-        productCacheService.setCachedProductList(responses);
+        productCacheService.setCachedProductList(products);
 
         // then
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);  // Redis 저장되는 Json 값을 캡처
-        // 저장 메소드가 호출되었는지 검증
-        verify(valueOperations)
-                .set(eq(ProductCacheService.PRODUCT_LIST_CACHE_KEY), captor.capture(), eq(Duration.ofMinutes(ttl)));
-
-        String cachedJson = captor.getValue();
-        // 역직렬화 하여 원래 객체와 같은지 확인
-        List<ProductResponse> deserialized = objectMapper.readValue(
-                cachedJson,
-                objectMapper.getTypeFactory().constructCollectionType(List.class, ProductResponse.class)
-        );
-
-        assertThat(deserialized).hasSize(1);
-        assertThat(deserialized.get(0).name()).isEqualTo("product1");
+        verify(redisCacheTemplate).set(
+                eq(ProductCacheService.PRODUCT_LIST_CACHE_KEY),
+                eq(products),
+                eq(expectedTtl));
     }
 
     @Test
-    @DisplayName("상품 목록 캐시 조회 성공")
-    void shouldGetProductListToCache() throws JsonProcessingException {
+    @DisplayName("캐시에 저장된 상품 목록을 조회 성공")
+    void shouldGetProductListFromCache() {
         // given
-        List<ProductResponse> responses = List.of(
-                ProductResponse.of(Product.builder().id(1L).name("product1").price(1000).stock(5).build())
+        List<ProductResponse> products = List.of(
+                ProductResponse.of(Product.builder().id(1L).name("product1").price(1000).stock(10).build()),
+                ProductResponse.of(Product.builder().id(2L).name("product2").price(500).stock(20).build())
         );
-        String json = objectMapper.writeValueAsString(responses);   // 미리 직렬화된 캐시 데이터 준비
-        when(valueOperations.get(ProductCacheService.PRODUCT_LIST_CACHE_KEY)).thenReturn(json); // Redis에서 읽어올 값을 지정
+        when(redisCacheTemplate.get(eq(ProductCacheService.PRODUCT_LIST_CACHE_KEY), any())).thenReturn(products);
 
         // when
         List<ProductResponse> result = productCacheService.getCachedProductList();
 
         // then
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).name()).isEqualTo("product1");
+        assertThat(result).isEqualTo(products);
     }
 
     @Test
-    @DisplayName("상품 목록 캐시 저장시 TTL이 설정되어야 한다")
-    void shouldSetTTLWhenGetProductList() {
+    @DisplayName("캐시에 저장된 데이터가 없으면 null 반환")
+    void shouldReturnNullWhenCacheIsEmpty() {
         // given
-        List<ProductResponse> responses = List.of(
-                ProductResponse.of(Product.builder().id(1L).name("product1").price(1000).stock(5).build())
-        );
+        when(redisCacheTemplate.get(eq(ProductCacheService.PRODUCT_LIST_CACHE_KEY), any())).thenReturn(null);
 
         // when
-        productCacheService.setCachedProductList(responses);
+        List<ProductResponse> cachedProductList = productCacheService.getCachedProductList();
 
         // then
-        verify(valueOperations)
-                .set(eq(ProductCacheService.PRODUCT_LIST_CACHE_KEY), any(String.class), eq(Duration.ofMinutes(ttl)));
+        assertThat(cachedProductList).isNull();
     }
+    
+    @Test
+    @DisplayName("캐시 삭제시 Redis 키가 제거된다")
+    void shouldDeleteProductListFromCache() {
+        // when
+        productCacheService.evictProductList();
 
+        // then
+        verify(redisCacheTemplate).delete(ProductCacheService.PRODUCT_LIST_CACHE_KEY);
+    }
 }
