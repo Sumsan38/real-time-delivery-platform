@@ -1,5 +1,6 @@
 package com.som.deliveryplatform.domain.product.service.impl;
 
+import com.som.deliveryplatform.domain.product.dto.request.ProductRequest;
 import com.som.deliveryplatform.domain.product.dto.response.ProductResponse;
 import com.som.deliveryplatform.domain.product.entity.Product;
 import com.som.deliveryplatform.domain.product.repository.ProductRepository;
@@ -46,5 +47,20 @@ public class ProductServiceImpl implements ProductService {
 
         productCacheService.setCachedProductDetail(id, response);
         return response;
+    }
+
+    @Override
+    public ProductResponse save(ProductRequest request) {
+        Product product = Product.builder()
+                .name(request.name())
+                .price(request.price())
+                .stock(request.stock())
+                .build();
+
+        Product saved = productRepository.save(product);
+
+        productCacheService.evictProductList();
+
+        return ProductResponse.of(saved);
     }
 }
