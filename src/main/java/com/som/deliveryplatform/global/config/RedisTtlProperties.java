@@ -14,8 +14,13 @@ import java.time.Duration;
 public class RedisTtlProperties {
 
     private int productList;
+    private int productDetail;
 
     public Duration productListTtl(){
         return Duration.ofMinutes(productList);
+    }
+
+    public Duration productDetailTtl(){
+        return Duration.ofMinutes(productDetail);
     }
 }

@@ -5,6 +5,7 @@ jwt:
 redis:
   ttl:
     product-list: 5
+    product-detail: 7
 
 spring:
   datasource:
