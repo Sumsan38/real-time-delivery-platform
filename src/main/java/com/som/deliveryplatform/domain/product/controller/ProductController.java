@@ -8,10 +8,7 @@ import com.som.deliveryplatform.global.common.ResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -30,7 +27,7 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDto<ProductResponse>> saveProduct(@Valid ProductRequest request) {
+    public ResponseEntity<ResponseDto<ProductResponse>> saveProduct(@Valid @RequestBody ProductRequest request) {
         ProductResponse productResponse = productService.save(request);
 
         return ResponseEntity.ok(ResponseDto.of(ResponseCode.SUCCESS, productResponse));
