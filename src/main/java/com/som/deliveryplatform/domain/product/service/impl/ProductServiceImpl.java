@@ -41,8 +41,7 @@ public class ProductServiceImpl implements ProductService {
             return cached;
         }
 
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 상품입니다."));
+        Product product = getProduct(id);
         ProductResponse response = ProductResponse.of(product);
 
         productCacheService.setCachedProductDetail(id, response);
@@ -62,5 +61,21 @@ public class ProductServiceImpl implements ProductService {
         productCacheService.evictProductList();
 
         return ProductResponse.of(saved);
+    }
+
+    @Override
+    public ProductResponse update(Long id, ProductRequest request) {
+        Product product = getProduct(id);
+        product.update(request.name(), request.price(), request.stock());
+
+        productCacheService.evictProductList();
+        productCacheService.evictProductDetail(id);
+
+        return ProductResponse.of(product);
+    }
+
+    private Product getProduct(Long id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 상품입니다."));
     }
 }
