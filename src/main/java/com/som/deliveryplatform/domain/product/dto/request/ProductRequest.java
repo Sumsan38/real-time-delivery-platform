@@ -10,7 +10,7 @@ public record ProductRequest(
         @NotNull(message = "가격은 필수입니다.")
         @Min(value = 0, message = "가격은 0 이상이여야합니다.")
         Integer price,
-        @NotNull(message = "재교는 필수입니다.")
+        @NotNull(message = "재고는 필수입니다.")
         @Min(value = 0, message = "재교는 0 이상이여야합니다.")
         Integer stock) {
 

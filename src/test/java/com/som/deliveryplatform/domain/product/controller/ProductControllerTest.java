@@ -1,5 +1,7 @@
 package com.som.deliveryplatform.domain.product.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.som.deliveryplatform.domain.product.dto.request.ProductRequest;
 import com.som.deliveryplatform.domain.product.dto.response.ProductResponse;
 import com.som.deliveryplatform.domain.product.entity.Product;
 import com.som.deliveryplatform.domain.product.service.ProductService;
@@ -12,6 +14,7 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -37,6 +40,9 @@ class ProductControllerTest {
     @InjectMocks
     private ProductController productController;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @BeforeEach
     void setUp() {
         // spring filter chain을 거치지 않는다.
@@ -61,7 +67,38 @@ class ProductControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(ResponseCode.SUCCESS.name()))
                 .andExpect(jsonPath("$.data[0].name").value("product1"))
-                .andExpect(jsonPath("$.data[1].price").value(2000))
-        ;
+                .andExpect(jsonPath("$.data[1].price").value(2000));
+    }
+
+    @Test
+    @DisplayName("상품 저장 성공")
+    void shouldSaveProduct() throws Exception {
+        // given
+        ProductRequest request = ProductRequest.of("product1", 1000, 10);
+        Product product = Product.builder().id(1L).name("product1").price(1000).stock(10).build();
+        ProductResponse response = ProductResponse.of(product);
+        when(productService.save(request)).thenReturn(response);
+
+        // when & then
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/products")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(ResponseCode.SUCCESS.name()))
+                .andExpect(jsonPath("$.data.name").value("product1"))
+                .andExpect(jsonPath("$.data.price").value(1000));
+    }
+
+    @Test
+    @DisplayName("상품 저장 실패 - 잘못된 요청")
+    void shouldReturnBadRequestWhenInvalidRequest() throws Exception {
+        // given
+        ProductRequest request = ProductRequest.of("", 1000, 10);
+
+        // when & then
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/products")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
     }
 }
