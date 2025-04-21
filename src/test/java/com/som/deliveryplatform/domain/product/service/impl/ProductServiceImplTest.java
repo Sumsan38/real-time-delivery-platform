@@ -1,5 +1,6 @@
 package com.som.deliveryplatform.domain.product.service.impl;
 
+import com.som.deliveryplatform.domain.product.dto.request.ProductRequest;
 import com.som.deliveryplatform.domain.product.dto.response.ProductResponse;
 import com.som.deliveryplatform.domain.product.entity.Product;
 import com.som.deliveryplatform.domain.product.repository.ProductRepository;
@@ -118,6 +119,21 @@ class ProductServiceImplTest {
 
         // when & then
         assertThatThrownBy(() -> productService.findById(1L)).isInstanceOf(NoSuchElementException.class);
+    }
+
+    @Test
+    @DisplayName("상품 저장 시 캐시(product:list)를 초기화 한다")
+    void shouldEvictProductListCacheOnSave() {
+        // given
+        Product product = Product.builder().id(1L).name("product1").price(1000).stock(10).build();
+        when(productRepository.save(any())).thenReturn(product);
+
+        // when
+        productService.save(ProductRequest.of("product1", 1000, 10));
+
+        // then
+        verify(productCacheService, times(1)).evictProductList();
+        verify(productRepository, times(1)).save(any());
     }
 
 }
