@@ -91,7 +91,7 @@ class ProductControllerTest {
 
     @Test
     @DisplayName("상품 저장 실패 - 잘못된 요청")
-    void shouldReturnBadRequestWhenInvalidRequest() throws Exception {
+    void shouldSaveFailBadRequestWhenInvalidRequest() throws Exception {
         // given
         ProductRequest request = ProductRequest.of("", 1000, 10);
 
@@ -99,6 +99,41 @@ class ProductControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/api/products")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("상품 수정 성공")
+    void shouldUpdateProduct() throws Exception {
+        // given
+        long id = 1L;
+        ProductRequest request = ProductRequest.of("updateProduct", 2000, 15);
+        ProductResponse response = ProductResponse.of(
+                Product.builder().id(id).name("updateProduct").price(2000).stock(15).build());
+        when(productService.update(id, request)).thenReturn(response);
+
+        // when & then
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/products/" + id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(ResponseCode.SUCCESS.name()))
+                .andExpect(jsonPath("$.data.name").value("updateProduct"))
+                .andExpect(jsonPath("$.data.price").value(2000))
+                .andExpect(jsonPath("$.data.stock").value(15));
+    }
+
+    @Test
+    @DisplayName("상품 수정 - 유효하지 않은 요청")
+    void shouldUpdateFailBadRequestWhenInvalidRequest() throws Exception {
+        // given
+        long id = 1L;
+        ProductRequest request = ProductRequest.of("", 1000, 10);
+
+        // when & then
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/products/" + id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
 }
