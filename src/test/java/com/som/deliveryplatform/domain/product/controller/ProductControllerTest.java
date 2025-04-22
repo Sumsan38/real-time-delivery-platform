@@ -173,4 +173,36 @@ class ProductControllerTest {
                 .andExpect(jsonPath("$.message").value(ResponseCode.NO_SUCH_ELEMENT.getMessage()));
     }
 
+    @Test
+    @DisplayName("상품 단건 조회 성공")
+    void shouldGetProductDetailSuccessfully() throws Exception {
+        // given
+        long id = 1L;
+        ProductResponse response =
+                ProductResponse.of(Product.builder().id(id).name("product1").price(1000).stock(10).build());
+        when(productService.findById(id)).thenReturn(response);
+
+        // when & then
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/products/" + id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(ResponseCode.SUCCESS.name()))
+                .andExpect(jsonPath("$.data.name").value("product1"))
+                .andExpect(jsonPath("$.data.price").value(1000));
+    }
+
+    @Test
+    @DisplayName("상품 단건 조회 실패")
+    void shouldGetProductDetailFailWhenInvalidProductId() throws Exception {
+        // given
+        long id = 9999L;
+        doThrow(new NoSuchElementException()).when(productService).findById(id);
+
+        // when & then
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/products/" + id)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value(ResponseCode.NO_SUCH_ELEMENT.name()))
+                .andExpect(jsonPath("$.message").value(ResponseCode.NO_SUCH_ELEMENT.getMessage()));
+    }
+
 }
