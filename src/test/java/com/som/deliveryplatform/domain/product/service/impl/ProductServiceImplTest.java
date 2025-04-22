@@ -155,5 +155,23 @@ class ProductServiceImplTest {
         verify(productCacheService, times(1)).evictProductDetail(id);
         verify(productRepository, times(1)).findById(id);
     }
+    
+    @Test
+    @DisplayName("상품 삭제 성공 시 캐시를 삭제한다")
+    void shouldEvictProductListAndDetailCacheOnDelete() {
+        // given
+        Long id = 1L;
+        Product product = Product.builder().id(id).name("product1").price(1000).stock(10).build();
+        when(productRepository.findById(id)).thenReturn(Optional.of(product));
+
+        // when
+        productService.delete(id);
+        
+        // then
+        verify(productCacheService, times(1)).evictProductList();
+        verify(productCacheService, times(1)).evictProductDetail(id);
+        verify(productRepository, times(1)).findById(id);
+        verify(productRepository, times(1)).delete(product);
+    }
 
 }
