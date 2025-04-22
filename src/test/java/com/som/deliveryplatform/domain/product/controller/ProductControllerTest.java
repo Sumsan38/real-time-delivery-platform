@@ -6,6 +6,7 @@ import com.som.deliveryplatform.domain.product.dto.response.ProductResponse;
 import com.som.deliveryplatform.domain.product.entity.Product;
 import com.som.deliveryplatform.domain.product.service.ProductService;
 import com.som.deliveryplatform.global.common.ResponseCode;
+import com.som.deliveryplatform.global.exception.GlobalExceptionHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,8 +22,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -43,13 +45,19 @@ class ProductControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private GlobalExceptionHandler globalExceptionHandler;
+
     @BeforeEach
     void setUp() {
         // spring filter chain을 거치지 않는다.
         // 이 방식은 Spring MVC DispatcherServlet만 직접 실행
         // Spring Security FilterChain은 등록죄 않는다. (인증/인가 무시)
         // 즉, 테스트 대상은 컨트롤러 자체의 로직이며 Security 필터는 동작하지 않는다.
-        mockMvc = MockMvcBuilders.standaloneSetup(productController).build();
+        mockMvc = MockMvcBuilders
+                .standaloneSetup(productController)
+                .setControllerAdvice(globalExceptionHandler)
+                .build();
     }
 
     @Test
@@ -97,8 +105,8 @@ class ProductControllerTest {
 
         // when & then
         mockMvc.perform(MockMvcRequestBuilders.post("/api/products")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
 
@@ -114,8 +122,8 @@ class ProductControllerTest {
 
         // when & then
         mockMvc.perform(MockMvcRequestBuilders.put("/api/products/" + id)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(ResponseCode.SUCCESS.name()))
                 .andExpect(jsonPath("$.data.name").value("updateProduct"))
@@ -136,4 +144,33 @@ class ProductControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    @DisplayName("상품 삭제 성공")
+    void shouldDeleteProductSuccessfully() throws Exception {
+        // given
+        long id = 1L;
+        doNothing().when(productService).delete(id);
+
+        // when & then
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/products/" + id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(ResponseCode.SUCCESS.name()));
+    }
+
+    @Test
+    @DisplayName("상품 삭제 실패 - 존재하지 않는 상품")
+    void shouldDeleteProductFailWhenInvalidProductId() throws Exception {
+        // given
+        long id = 9999L;
+        doThrow(new NoSuchElementException()).when(productService).delete(id);
+
+        // when & then
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/products/" + id)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value(ResponseCode.NO_SUCH_ELEMENT.name()))
+                .andExpect(jsonPath("$.message").value(ResponseCode.NO_SUCH_ELEMENT.getMessage()));
+    }
+
 }

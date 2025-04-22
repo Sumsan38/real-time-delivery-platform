@@ -17,8 +17,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<ResponseDto<Void>> handleNoSuchElementException(NoSuchElementException e) {
-        log.warn("No such element exception: {}", e.getMessage());
-
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ResponseDto.of(ResponseCode.NO_SUCH_ELEMENT));

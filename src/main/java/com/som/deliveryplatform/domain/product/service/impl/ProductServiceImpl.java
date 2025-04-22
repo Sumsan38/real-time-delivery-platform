@@ -85,7 +85,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private Product getProduct(Long id) {
-        return productRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("존재하지 않는 상품입니다."));
+        return productRepository.findById(id).orElseThrow(NoSuchElementException::new);
     }
 }
