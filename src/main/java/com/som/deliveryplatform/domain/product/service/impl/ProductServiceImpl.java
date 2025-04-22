@@ -74,6 +74,16 @@ public class ProductServiceImpl implements ProductService {
         return ProductResponse.of(product);
     }
 
+    @Override
+    public void delete(Long id) {
+        Product product = getProduct(id);
+
+        productCacheService.evictProductList();
+        productCacheService.evictProductDetail(id);
+
+        productRepository.delete(product);
+    }
+
     private Product getProduct(Long id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("존재하지 않는 상품입니다."));
