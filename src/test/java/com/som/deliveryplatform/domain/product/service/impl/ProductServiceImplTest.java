@@ -136,4 +136,24 @@ class ProductServiceImplTest {
         verify(productRepository, times(1)).save(any());
     }
 
+    @Test
+    @DisplayName("상품 수정 성공 시 캐시를 초기화한다")
+    void shouldEvictProductListAndDetailCacheOnUpdate() {
+        // given
+        Long id = 1L;
+        ProductRequest updateProduct = ProductRequest.of("updateProduct", 2000, 15);
+        Product existing = Product.builder().id(id).name("oldProduct").price(1000).stock(10).build();
+        when(productRepository.findById(id)).thenReturn(Optional.of(existing));
+
+        // when
+        ProductResponse result = productService.update(id, updateProduct);
+
+        // then
+        assertThat(result.name()).isEqualTo(updateProduct.name());
+
+        verify(productCacheService, times(1)).evictProductList();
+        verify(productCacheService, times(1)).evictProductDetail(id);
+        verify(productRepository, times(1)).findById(id);
+    }
+
 }
