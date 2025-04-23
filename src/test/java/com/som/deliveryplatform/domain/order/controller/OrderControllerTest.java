@@ -2,7 +2,6 @@ package com.som.deliveryplatform.domain.order.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.som.deliveryplatform.domain.order.dto.request.OrderRequest;
-import com.som.deliveryplatform.domain.order.dto.response.OrderResponse;
 import com.som.deliveryplatform.domain.order.service.OrderService;
 import com.som.deliveryplatform.global.common.ResponseCode;
 import com.som.deliveryplatform.global.exception.GlobalExceptionHandler;
@@ -20,7 +19,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import static org.mockito.Mockito.when;
+import java.util.List;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -55,9 +55,7 @@ class OrderControllerTest {
     @DisplayName("주문 생성 요청이 오면 status = CREATED 를 반환한다")
     void shouldCreateOrderAndReturnStatusCreated() throws Exception {
         // given
-        OrderRequest orderRequest = new OrderRequest();
-        OrderResponse orderResponse = new OrderResponse();
-        when(orderService.createOrder(orderRequest)).thenReturn(orderResponse);
+        OrderRequest orderRequest = new OrderRequest(1L, List.of(new OrderRequest.OrderItemRequest(100L, 2)));
 
         // when & then
         mockMvc.perform(MockMvcRequestBuilders.post("/api/orders")
