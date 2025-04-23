@@ -10,7 +10,7 @@ public record OrderRequest(
         Long userId,
 
         @NotNull(message = "주문 상품 목록은 필수입니다.")
-        List<OrderItemRequest> items
+        List<OrderItemRequest> orderItems
 ) {
     public record OrderItemRequest(
             @NotNull(message = "상품 ID는 필수입니다.")
