@@ -7,7 +7,6 @@ import com.som.deliveryplatform.domain.order.entity.Order;
 import com.som.deliveryplatform.domain.order.entity.OrderItem;
 import com.som.deliveryplatform.domain.order.entity.OrderStatus;
 import com.som.deliveryplatform.domain.order.service.OrderService;
-import com.som.deliveryplatform.domain.product.repository.ProductRepository;
 import com.som.deliveryplatform.global.common.ResponseCode;
 import com.som.deliveryplatform.global.exception.GlobalExceptionHandler;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +25,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -40,9 +39,6 @@ class OrderControllerTest {
 
     @Mock
     private OrderService orderService;
-
-    @Mock
-    private ProductRepository productRepository;
 
     @InjectMocks
     private OrderController orderController;
@@ -84,6 +80,43 @@ class OrderControllerTest {
                 .andExpect(jsonPath("$.data.items[0].productId").value(100L))
                 .andExpect(jsonPath("$.data.items[0].quantity").value(2))
                 .andExpect(jsonPath("$.data.items[0].price").value(5000));
+    }
+
+    @Test
+    @DisplayName("동일한 주문 요청시 같은 orderId 반환")
+    void shouldReturnSameResponseWhenDuplicateIdempotencyKey() throws Exception {
+        // given
+        String idempotencyKey = "test-Key-1234";
+        OrderRequest orderRequest = new OrderRequest(1L, List.of(new OrderRequest.OrderItemRequest(100L, 2)));
+        OrderResponse orderResponse = OrderResponse.from(new Order(1L, 1L, List.of(
+                OrderItem.builder()
+                        .id(1L)
+                        .productId(100L)
+                        .price(5000)
+                        .quantity(2)
+                        .build()), OrderStatus.CREATED));
+        when(orderService.createOrder(orderRequest)).thenReturn(orderResponse);
+
+        // when & then
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/orders")
+                        .header("IdempotencyKey", idempotencyKey)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(orderRequest)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.code").value(ResponseCode.SUCCESS.name()))
+                .andExpect(jsonPath("$.data.orderId").value(1L));
+
+        // 동일 키로 한 번 더 요청
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/orders")
+                        .header("IdempotencyKey", idempotencyKey)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(orderRequest)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.code").value(ResponseCode.SUCCESS.name()))
+                .andExpect(jsonPath("$.data.orderId").value(1L));
+
+        // verify + createOrder는 딱 한번만 실행되어야한다
+        verify(orderService, times(1)).createOrder(any(OrderRequest.class));
     }
 
 
