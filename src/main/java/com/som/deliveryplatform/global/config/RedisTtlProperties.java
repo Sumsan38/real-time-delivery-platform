@@ -15,6 +15,7 @@ public class RedisTtlProperties {
 
     private int productList;
     private int productDetail;
+    private int orderIdempotency;
 
     public Duration productListTtl(){
         return Duration.ofMinutes(productList);
@@ -22,5 +23,9 @@ public class RedisTtlProperties {
 
     public Duration productDetailTtl(){
         return Duration.ofMinutes(productDetail);
+    }
+
+    public Duration orderIdempotencyTtl(){
+        return Duration.ofMinutes(orderIdempotency);
     }
 }
