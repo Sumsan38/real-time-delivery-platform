@@ -2,7 +2,12 @@ package com.som.deliveryplatform.domain.order.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.som.deliveryplatform.domain.order.dto.request.OrderRequest;
+import com.som.deliveryplatform.domain.order.dto.response.OrderResponse;
+import com.som.deliveryplatform.domain.order.entity.Order;
+import com.som.deliveryplatform.domain.order.entity.OrderItem;
+import com.som.deliveryplatform.domain.order.entity.OrderStatus;
 import com.som.deliveryplatform.domain.order.service.OrderService;
+import com.som.deliveryplatform.domain.product.repository.ProductRepository;
 import com.som.deliveryplatform.global.common.ResponseCode;
 import com.som.deliveryplatform.global.exception.GlobalExceptionHandler;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +26,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
 
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -34,6 +40,9 @@ class OrderControllerTest {
 
     @Mock
     private OrderService orderService;
+
+    @Mock
+    private ProductRepository productRepository;
 
     @InjectMocks
     private OrderController orderController;
@@ -50,19 +59,32 @@ class OrderControllerTest {
                 .setControllerAdvice(globalExceptionHandler)
                 .build();
     }
-    
+
     @Test
     @DisplayName("주문 생성 요청이 오면 status = CREATED 를 반환한다")
     void shouldCreateOrderAndReturnStatusCreated() throws Exception {
         // given
         OrderRequest orderRequest = new OrderRequest(1L, List.of(new OrderRequest.OrderItemRequest(100L, 2)));
+        OrderResponse orderResponse = OrderResponse.from(new Order(1L, 1L, List.of(
+                OrderItem.builder()
+                        .id(1L)
+                        .productId(100L)
+                        .price(5000)
+                        .quantity(2)
+                        .build()), OrderStatus.CREATED));
+        when(orderService.createOrder(orderRequest)).thenReturn(orderResponse);
 
         // when & then
         mockMvc.perform(MockMvcRequestBuilders.post("/api/orders")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(orderRequest)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(orderRequest)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.code").value(ResponseCode.SUCCESS.name()))
-                .andExpect(jsonPath("$.data.orderId").exists());
+                .andExpect(jsonPath("$.data.orderId").value(1L))
+                .andExpect(jsonPath("$.data.items[0].productId").value(100L))
+                .andExpect(jsonPath("$.data.items[0].quantity").value(2))
+                .andExpect(jsonPath("$.data.items[0].price").value(5000));
     }
+
+
 }
