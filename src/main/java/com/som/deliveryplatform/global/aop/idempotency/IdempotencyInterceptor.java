@@ -5,6 +5,8 @@ import com.nimbusds.common.contenttype.ContentType;
 import com.som.deliveryplatform.global.aop.annotation.Idempotent;
 import com.som.deliveryplatform.global.aop.idempotency.store.IdempotencyStore;
 import com.som.deliveryplatform.global.aop.idempotency.store.IdempotencyStoreRegistry;
+import com.som.deliveryplatform.global.common.ResponseCode;
+import com.som.deliveryplatform.global.common.ResponseDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -41,9 +43,11 @@ public class IdempotencyInterceptor implements HandlerInterceptor {
         IdempotencyStore store = idempotencyStoreRegistry.getStore(request);
         if(store.isDuplicateRequest(key)) {
             Object cachedResponse = store.getSavedResponse(key);
+            ResponseDto<Object> wrappedResponse = ResponseDto.of(ResponseCode.SUCCESS, cachedResponse);
+
             response.setStatus(statusOfRequestMethod.get(request.getMethod()).value());
             response.setContentType(ContentType.APPLICATION_JSON.getType());
-            response.getWriter().write(serializeToJson(cachedResponse));
+            response.getWriter().write(serializeToJson(wrappedResponse));
             return false;
         }
 
