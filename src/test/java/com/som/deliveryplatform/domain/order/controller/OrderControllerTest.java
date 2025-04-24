@@ -60,6 +60,7 @@ class OrderControllerTest {
     @DisplayName("주문 생성 요청이 오면 status = CREATED 를 반환한다")
     void shouldCreateOrderAndReturnStatusCreated() throws Exception {
         // given
+        String idempotencyKey = "test-Key-1234";
         OrderRequest orderRequest = new OrderRequest(1L, List.of(new OrderRequest.OrderItemRequest(100L, 2)));
         OrderResponse orderResponse = OrderResponse.from(new Order(1L, 1L, List.of(
                 OrderItem.builder()
@@ -68,7 +69,7 @@ class OrderControllerTest {
                         .price(5000)
                         .quantity(2)
                         .build()), OrderStatus.CREATED));
-        when(orderService.createOrder(orderRequest)).thenReturn(orderResponse);
+        when(orderService.createOrder(idempotencyKey, orderRequest)).thenReturn(orderResponse);
 
         // when & then
         mockMvc.perform(MockMvcRequestBuilders.post("/api/orders")
@@ -95,7 +96,7 @@ class OrderControllerTest {
                         .price(5000)
                         .quantity(2)
                         .build()), OrderStatus.CREATED));
-        when(orderService.createOrder(orderRequest)).thenReturn(orderResponse);
+        when(orderService.createOrder(idempotencyKey, orderRequest)).thenReturn(orderResponse);
 
         // when & then
         mockMvc.perform(MockMvcRequestBuilders.post("/api/orders")
@@ -116,7 +117,7 @@ class OrderControllerTest {
                 .andExpect(jsonPath("$.data.orderId").value(1L));
 
         // verify + createOrder는 딱 한번만 실행되어야한다
-        verify(orderService, times(1)).createOrder(any(OrderRequest.class));
+        verify(orderService, times(1)).createOrder(idempotencyKey, any(OrderRequest.class));
     }
 
 

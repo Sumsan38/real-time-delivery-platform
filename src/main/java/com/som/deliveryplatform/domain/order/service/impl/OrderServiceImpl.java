@@ -5,6 +5,7 @@ import com.som.deliveryplatform.domain.order.dto.response.OrderResponse;
 import com.som.deliveryplatform.domain.order.entity.Order;
 import com.som.deliveryplatform.domain.order.entity.OrderItem;
 import com.som.deliveryplatform.domain.order.repository.OrderRepository;
+import com.som.deliveryplatform.domain.order.service.OrderIdempotencyService;
 import com.som.deliveryplatform.domain.order.service.OrderService;
 import com.som.deliveryplatform.domain.product.entity.Product;
 import com.som.deliveryplatform.domain.product.repository.ProductRepository;
@@ -24,8 +25,10 @@ public class OrderServiceImpl implements OrderService {
     private final ProductRepository productRepository;
     private final OrderRepository orderRepository;
 
+    private final OrderIdempotencyService idempotencyService;
+
     @Override
-    public OrderResponse createOrder(OrderRequest request) {
+    public OrderResponse createOrder(String idempotencyKey, OrderRequest request) {
         List<Long> productIds = request.orderItems().stream().map(OrderRequest.OrderItemRequest::productId).toList();
         List<Product> products = productRepository.findAllById(productIds);
 
@@ -49,7 +52,11 @@ public class OrderServiceImpl implements OrderService {
 
         Order order = Order.of(request.userId(), orderItems);
         Order saved = orderRepository.save(order);
+        OrderResponse orderResponse = OrderResponse.from(saved);
 
-        return OrderResponse.from(saved);
+        // 캐시 저장
+        idempotencyService.saveResponse(idempotencyKey, orderResponse);
+
+        return orderResponse;
     }
 }

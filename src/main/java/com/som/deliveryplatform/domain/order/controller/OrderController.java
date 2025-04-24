@@ -10,10 +10,7 @@ import com.som.deliveryplatform.global.common.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,8 +21,10 @@ public class OrderController {
 
     @Idempotent
     @PostMapping
-    public ResponseEntity<ResponseDto<OrderResponse>> order(@RequestBody OrderRequest orderRequest) {
-        OrderResponse orderResponse = orderService.createOrder(orderRequest);
+    public ResponseEntity<ResponseDto<OrderResponse>> order(
+            @RequestHeader("IdempotencyKey") String idempotencyKey,
+            @RequestBody OrderRequest orderRequest) {
+        OrderResponse orderResponse = orderService.createOrder(idempotencyKey, orderRequest);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(ResponseDto.of(ResponseCode.SUCCESS, orderResponse));
     }

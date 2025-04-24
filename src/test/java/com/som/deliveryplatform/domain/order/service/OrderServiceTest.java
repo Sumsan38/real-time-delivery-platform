@@ -37,6 +37,7 @@ class OrderServiceTest {
     @DisplayName("주문 생성 성공 시 OrderResponse를 반환다")
     void shouldReturnOrderResponseWhenOrderCreated() {
         // given
+        String idempotencyKey = "test-Key-1234";
         OrderRequest orderRequest = new OrderRequest(1L,
                 List.of(new OrderRequest.OrderItemRequest(100L, 2)));
         Product product = Product.builder().id(100L).name("product").price(5000).stock(10).build();
@@ -51,7 +52,7 @@ class OrderServiceTest {
         when(orderRepository.save(any(Order.class))).thenReturn(order);
 
         // when
-        OrderResponse orderResponse = orderService.createOrder(orderRequest);
+        OrderResponse orderResponse = orderService.createOrder(idempotencyKey, orderRequest);
 
         // then
         assertThat(orderResponse).isNotNull();
