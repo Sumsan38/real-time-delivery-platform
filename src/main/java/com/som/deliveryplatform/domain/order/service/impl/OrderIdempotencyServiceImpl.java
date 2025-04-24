@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.som.deliveryplatform.domain.order.constant.OrderApiKey;
 import com.som.deliveryplatform.domain.order.dto.response.OrderResponse;
 import com.som.deliveryplatform.domain.order.service.OrderIdempotencyService;
-import com.som.deliveryplatform.global.aop.store.IdempotencyStore;
+import com.som.deliveryplatform.global.aop.idempotency.store.IdempotencyStore;
 import com.som.deliveryplatform.global.config.RedisTtlProperties;
 import com.som.deliveryplatform.global.util.redis.RedisCacheTemplate;
 import jakarta.servlet.http.HttpServletRequest;

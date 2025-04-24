@@ -1,4 +1,4 @@
-package com.som.deliveryplatform.global.aop.store;
+package com.som.deliveryplatform.global.aop.idempotency.store;
 
 import jakarta.servlet.http.HttpServletRequest;
 
