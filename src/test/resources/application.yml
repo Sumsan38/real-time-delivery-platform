@@ -6,6 +6,7 @@ redis:
   ttl:
     product-list: 5
     product-detail: 7
+    order-idempotency: 10
 
 spring:
   datasource:
