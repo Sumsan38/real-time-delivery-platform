@@ -28,6 +28,9 @@ class OrderServiceTest {
     private OrderServiceImpl orderService;
 
     @Mock
+    private OrderIdempotencyService orderIdempotencyService;
+
+    @Mock
     private ProductRepository productRepository;
 
     @Mock

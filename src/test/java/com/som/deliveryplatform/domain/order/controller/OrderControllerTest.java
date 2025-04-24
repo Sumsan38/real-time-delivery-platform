@@ -1,6 +1,7 @@
 package com.som.deliveryplatform.domain.order.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.som.deliveryplatform.domain.order.constant.OrderApiKey;
 import com.som.deliveryplatform.domain.order.dto.request.OrderRequest;
 import com.som.deliveryplatform.domain.order.dto.response.OrderResponse;
 import com.som.deliveryplatform.domain.order.entity.Order;
@@ -72,7 +73,8 @@ class OrderControllerTest {
         when(orderService.createOrder(idempotencyKey, orderRequest)).thenReturn(orderResponse);
 
         // when & then
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/orders")
+        mockMvc.perform(MockMvcRequestBuilders.post(OrderApiKey.ORDER_API_KEY)
+                        .header("IdempotencyKey", idempotencyKey)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(orderRequest)))
                 .andExpect(status().isCreated())
@@ -99,7 +101,7 @@ class OrderControllerTest {
         when(orderService.createOrder(idempotencyKey, orderRequest)).thenReturn(orderResponse);
 
         // when & then
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/orders")
+        mockMvc.perform(MockMvcRequestBuilders.post(OrderApiKey.ORDER_API_KEY)
                         .header("IdempotencyKey", idempotencyKey)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(orderRequest)))
@@ -108,7 +110,7 @@ class OrderControllerTest {
                 .andExpect(jsonPath("$.data.orderId").value(1L));
 
         // 동일 키로 한 번 더 요청
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/orders")
+        mockMvc.perform(MockMvcRequestBuilders.post(OrderApiKey.ORDER_API_KEY)
                         .header("IdempotencyKey", idempotencyKey)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(orderRequest)))
@@ -117,7 +119,7 @@ class OrderControllerTest {
                 .andExpect(jsonPath("$.data.orderId").value(1L));
 
         // verify + createOrder는 딱 한번만 실행되어야한다
-        verify(orderService, times(1)).createOrder(idempotencyKey, any(OrderRequest.class));
+        verify(orderService, times(1)).createOrder(eq(idempotencyKey), any(OrderRequest.class));
     }
 
 

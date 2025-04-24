@@ -6,6 +6,6 @@ public class OrderApiKey {
         throw new IllegalStateException("Utility class");
     }
 
-    public static final String ORDER_API_KEY = "/api/order";
-    public static final String ORDER_API_KEY_WITH_ID = "/api/order/{id}";
+    public static final String ORDER_API_KEY = "/api/orders";
+    public static final String ORDER_API_KEY_WITH_ID = "/api/orders/{id}";
 }
