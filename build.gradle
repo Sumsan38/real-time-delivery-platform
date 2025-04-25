@@ -66,9 +66,14 @@ dependencies {
 
 	// Test
 	testImplementation 'com.h2database:h2'	// 테스트용 H2 데이터 베이스
+	testImplementation('it.ozimov:embedded-redis:0.7.3') {	// 테스트용 Redis
+		exclude group: 'org.slf4j', module: 'slf4j-simple'
+	}
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 tasks.named('test') {

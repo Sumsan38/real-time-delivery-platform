@@ -31,17 +31,17 @@ public class IdempotencyInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response,
                              Object handler) throws Exception {
-        if( !handlerHasIdempotentAnnotation(handler) ) return true;
+        if (!handlerHasIdempotentAnnotation(handler)) return true;
 
         String key = request.getHeader("IdempotencyKey");
-        if(key == null || key.isBlank()) {
+        if (key == null || key.isBlank()) {
             response.sendError(HttpStatus.BAD_REQUEST.value());
             response.getWriter().write(serializeToJson("idempotency key is required."));
             return false;
         }
 
         IdempotencyStore store = idempotencyStoreRegistry.getStore(request);
-        if(store.isDuplicateRequest(key)) {
+        if (store.isDuplicateRequest(key)) {
             Object cachedResponse = store.getSavedResponse(key);
             ResponseDto<Object> wrappedResponse = ResponseDto.of(ResponseCode.SUCCESS, cachedResponse);
 
@@ -55,7 +55,7 @@ public class IdempotencyInterceptor implements HandlerInterceptor {
     }
 
     public boolean handlerHasIdempotentAnnotation(Object handler) {
-        if(! (handler instanceof HandlerMethod method)) return false;
+        if (!(handler instanceof HandlerMethod method)) return false;
         return method.hasMethodAnnotation(Idempotent.class);
     }
 
