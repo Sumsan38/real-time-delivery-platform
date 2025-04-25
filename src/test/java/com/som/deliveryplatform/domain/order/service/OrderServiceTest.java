@@ -8,6 +8,8 @@ import com.som.deliveryplatform.domain.order.repository.OrderRepository;
 import com.som.deliveryplatform.domain.order.service.impl.OrderServiceImpl;
 import com.som.deliveryplatform.domain.product.entity.Product;
 import com.som.deliveryplatform.domain.product.repository.ProductRepository;
+import com.som.deliveryplatform.domain.product.service.ProductService;
+import com.som.deliveryplatform.global.util.redis.LockService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,6 +37,12 @@ class OrderServiceTest {
 
     @Mock
     private OrderRepository orderRepository;
+
+    @Mock
+    private ProductService productService;
+
+    @Mock
+    private LockService lockService;
 
     @Test
     @DisplayName("주문 생성 성공 시 OrderResponse를 반환다")

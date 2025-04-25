@@ -2,6 +2,7 @@ package com.som.deliveryplatform.domain.product.service;
 
 import com.som.deliveryplatform.domain.product.dto.response.ProductResponse;
 import com.som.deliveryplatform.domain.product.entity.Product;
+import com.som.deliveryplatform.global.auth.jwt.JwtProperties;
 import com.som.deliveryplatform.global.config.RedisTtlProperties;
 import com.som.deliveryplatform.global.util.redis.RedisCacheTemplate;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,6 +44,9 @@ class ProductCacheServiceTest {
     private RedisTtlProperties redisTtlProperties;
 
     private Duration expectedTtl;
+
+    @Autowired
+    private JwtProperties jwtProperties;
 
     @BeforeEach
     void setUp() {

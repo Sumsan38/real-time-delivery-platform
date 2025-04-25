@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.som.deliveryplatform.domain.product.dto.request.ProductRequest;
 import com.som.deliveryplatform.domain.product.dto.response.ProductResponse;
 import com.som.deliveryplatform.domain.product.entity.Product;
+import com.som.deliveryplatform.domain.product.service.ProductCacheService;
 import com.som.deliveryplatform.domain.product.service.ProductService;
 import com.som.deliveryplatform.global.common.ResponseCode;
 import com.som.deliveryplatform.global.exception.GlobalExceptionHandler;
+import com.som.deliveryplatform.global.util.redis.LockService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -47,6 +49,12 @@ class ProductControllerTest {
 
     @Autowired
     private GlobalExceptionHandler globalExceptionHandler;
+
+    @Mock
+    private LockService lockService;
+
+    @Mock
+    private ProductCacheService productCacheService;
 
     @BeforeEach
     void setUp() {

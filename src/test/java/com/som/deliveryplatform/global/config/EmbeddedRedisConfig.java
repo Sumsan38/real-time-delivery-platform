@@ -10,7 +10,7 @@ import redis.embedded.RedisServer;
 @Configuration
 public class EmbeddedRedisConfig implements DisposableBean {
 
-    private RedisServer redisServer;
+    private static RedisServer redisServer;
 
     @Value("${spring.data.redis.port}")
     private int port;

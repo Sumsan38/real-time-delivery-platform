@@ -1,6 +1,7 @@
 package com.som.deliveryplatform.global.auth.filter;
 
 import com.som.deliveryplatform.domain.user.model.Role;
+import com.som.deliveryplatform.global.auth.jwt.JwtProperties;
 import com.som.deliveryplatform.global.auth.jwt.JwtProvider;
 import com.som.deliveryplatform.global.auth.principal.UserPrincipal;
 import org.junit.jupiter.api.DisplayName;
@@ -26,6 +27,9 @@ class JwtAuthenticationFilterTest {
 
     @Autowired
     private JwtProvider jwtProvider;
+
+    @Autowired
+    private JwtProperties jwtProperties;
 
     private final String testEmail = "test@test.com";
     private final Role testRole = Role.USER;
