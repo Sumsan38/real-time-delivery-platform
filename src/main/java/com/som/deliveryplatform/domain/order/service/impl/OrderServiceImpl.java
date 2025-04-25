@@ -9,6 +9,7 @@ import com.som.deliveryplatform.domain.order.service.OrderIdempotencyService;
 import com.som.deliveryplatform.domain.order.service.OrderService;
 import com.som.deliveryplatform.domain.product.entity.Product;
 import com.som.deliveryplatform.domain.product.repository.ProductRepository;
+import com.som.deliveryplatform.domain.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
 
     private final OrderIdempotencyService idempotencyService;
+    private final ProductService productService;
 
     @Override
     public OrderResponse createOrder(String idempotencyKey, OrderRequest request) {
@@ -41,6 +43,9 @@ public class OrderServiceImpl implements OrderService {
                     if(product == null) {
                         throw new NoSuchElementException();
                     }
+
+                    // 재고 감소 처리 (상품 단위 락 적용)
+                    productService.decreaseStockWithLock(item.productId(), item.quantity());
 
                     return OrderItem.builder()
                             .productId(item.productId())

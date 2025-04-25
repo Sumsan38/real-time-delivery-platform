@@ -27,4 +27,8 @@ public class Product extends BaseTimeEntity {
         this.price = price;
         this.stock = stock;
     }
+
+    public void decreaseStock(Integer amount) {
+        this.stock -= amount;
+    }
 }

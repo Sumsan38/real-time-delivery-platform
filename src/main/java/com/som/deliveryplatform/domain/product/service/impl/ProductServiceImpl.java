@@ -6,6 +6,7 @@ import com.som.deliveryplatform.domain.product.entity.Product;
 import com.som.deliveryplatform.domain.product.repository.ProductRepository;
 import com.som.deliveryplatform.domain.product.service.ProductCacheService;
 import com.som.deliveryplatform.domain.product.service.ProductService;
+import com.som.deliveryplatform.global.util.redis.LockService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,9 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductCacheService productCacheService;
     private final ProductRepository productRepository;
+    private final LockService lockService;
+
+    private static final String PRODUCT_LOCK_KEY = "product:lock:";
 
     @Override
     public List<ProductResponse> findAll() {
@@ -82,6 +86,24 @@ public class ProductServiceImpl implements ProductService {
         productCacheService.evictProductDetail(id);
 
         productRepository.delete(product);
+    }
+
+    @Override
+    public void decreaseStockWithLock(Long id, int quantity) {
+        String lockKey = PRODUCT_LOCK_KEY + id;
+
+        lockService.executeWithLock(lockKey, 3, 10, () -> {
+            Product product = getProduct(id);
+
+            if (product.getStock() < quantity) {
+                throw new IllegalArgumentException("재고 부족");
+            }
+
+            product.decreaseStock(quantity);
+            productRepository.save(product);
+
+            return null;
+        });
     }
 
     private Product getProduct(Long id) {
