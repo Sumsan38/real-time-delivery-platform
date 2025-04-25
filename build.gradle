@@ -43,6 +43,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.apache.commons:commons-pool2'	// Lettuce connection pool 사용시 필요
 
+	// redisson
+	implementation("org.redisson:redisson:3.45.1")
+	implementation("org.redisson:redisson-spring-boot-starter:3.45.1")
+
 	// OAuth2 Client
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
