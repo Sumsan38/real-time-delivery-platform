@@ -25,9 +25,11 @@ repositories {
 dependencies {
 	// web
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 	// security
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+	testImplementation 'org.springframework.security:spring-security-test'
 
 	// jpa
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -42,6 +44,9 @@ dependencies {
 	// redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.apache.commons:commons-pool2'	// Lettuce connection pool 사용시 필요
+	testImplementation('it.ozimov:embedded-redis:0.7.3') {	// 테스트용 Redis
+		exclude group: 'org.slf4j', module: 'slf4j-simple'
+	}
 
 	// redisson
 	implementation("org.redisson:redisson:3.45.1")
@@ -50,12 +55,18 @@ dependencies {
 	// OAuth2 Client
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
+	// kafka
+	implementation 'org.springframework.kafka:spring-kafka'
+	testImplementation 'org.springframework.kafka:spring-kafka-test'
+
 	// mysql
 	runtimeOnly 'com.mysql:mysql-connector-j'
 
 	// lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
 
 	// devTools
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
@@ -70,14 +81,8 @@ dependencies {
 
 	// Test
 	testImplementation 'com.h2database:h2'	// 테스트용 H2 데이터 베이스
-	testImplementation('it.ozimov:embedded-redis:0.7.3') {	// 테스트용 Redis
-		exclude group: 'org.slf4j', module: 'slf4j-simple'
-	}
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	testCompileOnly 'org.projectlombok:lombok'
-	testAnnotationProcessor 'org.projectlombok:lombok'
+
 }
 
 tasks.named('test') {
