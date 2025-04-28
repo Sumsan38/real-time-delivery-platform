@@ -10,6 +10,7 @@ import com.som.deliveryplatform.global.util.redis.LockService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -17,6 +18,7 @@ import java.util.NoSuchElementException;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ProductServiceImpl implements ProductService {
 
     private final ProductCacheService productCacheService;
@@ -53,6 +55,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public ProductResponse save(ProductRequest request) {
         Product product = Product.builder()
                 .name(request.name())
@@ -68,6 +71,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public ProductResponse update(Long id, ProductRequest request) {
         Product product = getProduct(id);
         product.update(request.name(), request.price(), request.stock());
@@ -79,6 +83,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         Product product = getProduct(id);
 
@@ -89,6 +94,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public void decreaseStockWithLock(Long id, int quantity) {
         String lockKey = PRODUCT_LOCK_KEY + id;
 

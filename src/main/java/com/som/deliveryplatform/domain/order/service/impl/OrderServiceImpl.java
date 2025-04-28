@@ -12,6 +12,7 @@ import com.som.deliveryplatform.domain.product.repository.ProductRepository;
 import com.som.deliveryplatform.domain.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ public class OrderServiceImpl implements OrderService {
     private final ProductService productService;
 
     @Override
+    @Transactional
     public OrderResponse createOrder(String idempotencyKey, OrderRequest request) {
         List<Long> productIds = request.orderItems().stream().map(OrderRequest.OrderItemRequest::productId).toList();
         List<Product> products = productRepository.findAllById(productIds);
@@ -53,7 +55,7 @@ public class OrderServiceImpl implements OrderService {
                             .price(product.getPrice())
                             .build();
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         Order order = Order.of(request.userId(), orderItems);
         Order saved = orderRepository.save(order);
