@@ -17,28 +17,22 @@ public class RedisLockService implements LockService {
     private final RedissonClient redissonClient;
 
     @Override
-    public <T> T executeWithLock(String key, long waitTIle, long leaseTime, Callable<T> task) {
+    public <T> T executeWithLock(String key, long waitTime, long leaseTime, Callable<T> task) {
+        // waitTime 초 대기하며 락을 얻으려고 시도.
+        // 락을 얻은 뒤 waitTime 초 동안 점유
         RLock lock = redissonClient.getLock(key);
-        boolean isLocked = false;
-
+        boolean locked = false;
         try {
-            // waitTIle 초 대기하며 락을 얻으려고 시도.
-            // 락을 얻은 뒤 waitTIle 초 동안 점유
-            isLocked = lock.tryLock(waitTIle, leaseTime, TimeUnit.SECONDS);
-            if(! isLocked) {
-                throw new IllegalStateException("fail to lock redis key: " + key);
+            locked = lock.tryLock(waitTime, leaseTime, TimeUnit.SECONDS);
+            if (!locked) {
+                throw new IllegalStateException("Redis lock 획득 실패: key=" + key);
             }
             return task.call();
         } catch (Exception e) {
-            log.error("fail to lock redis key: {}", key, e);
-            throw new IllegalStateException(e);
+            throw new RuntimeException(e);
         } finally {
-            if(isLocked) {
-                try {
-                    lock.unlock();
-                } catch (Exception e) {
-                    log.error("fail to unlock redis key: {}", key, e);
-                }
+            if (locked) {
+                lock.unlock();
             }
         }
     }

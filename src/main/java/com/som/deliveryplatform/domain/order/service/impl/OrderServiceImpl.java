@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -39,23 +40,23 @@ public class OrderServiceImpl implements OrderService {
         Map<Long, Product> productMap = products
                 .stream().collect(Collectors.toMap(Product::getId, Function.identity()));
 
-        List<OrderItem> orderItems = request.orderItems().stream()
-                .map(item -> {
-                    Product product = productMap.get(item.productId());
-                    if(product == null) {
-                        throw new NoSuchElementException();
-                    }
+        List<OrderItem> orderItems = new ArrayList<>();
+        for (OrderRequest.OrderItemRequest item : request.orderItems()) {
+            Product product = productMap.get(item.productId());
+            if(product == null) {
+                throw new NoSuchElementException();
+            }
 
-                    // 재고 감소 처리 (상품 단위 락 적용)
-                    productService.decreaseStockWithLock(item.productId(), item.quantity());
+            // 재고 감소 처리 (상품 단위 락 적용)
+            productService.decreaseStockWithLock(product.getId(), item.quantity());
 
-                    return OrderItem.builder()
-                            .productId(item.productId())
-                            .quantity(item.quantity())
-                            .price(product.getPrice())
-                            .build();
-                })
-                .toList();
+            OrderItem orderItem = OrderItem.builder()
+                    .productId(item.productId())
+                    .quantity(item.quantity())
+                    .price(product.getPrice())
+                    .build();
+            orderItems.add(orderItem);
+        }
 
         Order order = Order.of(request.userId(), orderItems);
         Order saved = orderRepository.save(order);
