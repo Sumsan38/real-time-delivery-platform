@@ -33,6 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class OrderIntegrationTest {
+    // 실제 로컬 redis 띄우지 않으면 실패한다 (TODO check)
 
     @Autowired
     private MockMvc mockMvc;
@@ -70,6 +71,7 @@ class OrderIntegrationTest {
         orderItemRepository.deleteAllInBatch();
         orderRepository.deleteAllInBatch();
         productRepository.deleteAllInBatch();
+        userRepository.deleteAllInBatch();
     }
 
     @Test
