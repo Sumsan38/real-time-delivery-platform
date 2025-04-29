@@ -18,7 +18,7 @@ public class KafkaPublisher {
             String payload = objectMapper.writeValueAsString(message);
             kafkaTemplate.send(topic, payload);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("kafka message serialize error", e);
+            throw new RuntimeException("kafka publish error", e);
         }
     }
 }

@@ -52,8 +52,7 @@ spring:
 
 kafka:
   topic:
-    default: test-delivery-platform-topic
-
+    order: order-create
 
 logging:
   level:
