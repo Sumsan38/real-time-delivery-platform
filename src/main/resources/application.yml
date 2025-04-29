@@ -2,6 +2,19 @@ spring:
   profiles:
     active: local
 
+  kafka:
+    consumer:
+      enable-auto-commit: false
+    listener:
+      ack-mode: manual_immediate
+      retry:
+        enabled: true
+        max-attempts: 3
+        backoff:
+          interval: 1000
+          multiplier: 2.0
+          max-interval: 4000
+
 # JWT
 jwt:
   expiration: 259200000  # 3일 (단위: 밀리초)
@@ -11,6 +24,8 @@ redis:
     product-list: 5
     product-detail: 7
     order-idempotency: 10
+
+
 
 kafka:
   topic:

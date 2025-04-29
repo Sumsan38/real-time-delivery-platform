@@ -49,6 +49,16 @@ spring:
       group-id: test-delivery-platform-group
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      enable-auto-commit: false
+    listener:
+      ack-mode: manual_immediate
+      retry:
+        enabled: true
+        max-attempts: 3
+        backoff:
+          interval: 1000
+          multiplier: 2.0
+          max-interval: 4000
 
 kafka:
   topic:
