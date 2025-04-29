@@ -41,7 +41,7 @@ spring:
             client-id: google-client-id
             client-secret: google-secret
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: localhost:9093
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -63,6 +63,13 @@ spring:
 kafka:
   topic:
     order: order-create
+
+# monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus
 
 logging:
   level:

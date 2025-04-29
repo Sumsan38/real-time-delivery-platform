@@ -35,7 +35,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         authorize -> authorize
                                 .requestMatchers("/").permitAll()       // 루트 경로 허용
-                                .requestMatchers("/api/public/**").permitAll()  // 퍼블릭 API 허용
+                                .requestMatchers(
+                                        "/api/public/**",
+                                        "/actuator/**"
+                                ).permitAll()  // 퍼블릭 API 허용
                                 .anyRequest().authenticated()           // 그 외 인증 필요
                 )
                 .oauth2Login(oauth2 -> oauth2   // OAuth2 로그인 설정

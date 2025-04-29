@@ -15,6 +15,13 @@ spring:
           multiplier: 2.0
           max-interval: 4000
 
+# monitoring
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus
+
 # JWT
 jwt:
   expiration: 259200000  # 3일 (단위: 밀리초)
