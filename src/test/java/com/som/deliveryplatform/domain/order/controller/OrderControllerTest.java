@@ -7,6 +7,7 @@ import com.som.deliveryplatform.domain.order.dto.response.OrderResponse;
 import com.som.deliveryplatform.domain.order.entity.Order;
 import com.som.deliveryplatform.domain.order.entity.OrderItem;
 import com.som.deliveryplatform.domain.order.entity.OrderStatus;
+import com.som.deliveryplatform.domain.order.message.OrderMessagePayload;
 import com.som.deliveryplatform.domain.order.service.OrderIdempotencyService;
 import com.som.deliveryplatform.domain.order.service.OrderService;
 import com.som.deliveryplatform.global.aop.idempotency.IdempotencyInterceptor;
@@ -15,6 +16,7 @@ import com.som.deliveryplatform.global.aop.idempotency.store.IdempotencyStoreReg
 import com.som.deliveryplatform.global.common.ResponseCode;
 import com.som.deliveryplatform.global.common.ResponseDto;
 import com.som.deliveryplatform.global.exception.GlobalExceptionHandler;
+import com.som.deliveryplatform.global.kafka.KafkaPublisher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,6 +43,9 @@ class OrderControllerTest {
 
     @Mock
     private OrderService orderService;
+
+    @Mock
+    private KafkaPublisher kafkaPublisher;
 
     @Mock
     private OrderIdempotencyService orderIdempotencyService;
@@ -96,7 +101,7 @@ class OrderControllerTest {
                 .andReturn();
 
         // then
-        verify(orderService, times(1)).createOrder(eq(idempotencyKey), any(OrderRequest.class));
+        verify(kafkaPublisher, times(1)).publish(any(), any(OrderMessagePayload.class));
     }
 
     @Test
@@ -121,6 +126,6 @@ class OrderControllerTest {
                 .andReturn();
 
         // then
-        verify(orderService, never()).createOrder(any(), any());
+        verify(kafkaPublisher, never()).publish(any(), any());
     }
 }

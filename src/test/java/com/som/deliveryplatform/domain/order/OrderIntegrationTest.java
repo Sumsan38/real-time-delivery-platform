@@ -11,7 +11,6 @@ import com.som.deliveryplatform.domain.user.entity.User;
 import com.som.deliveryplatform.domain.user.model.Role;
 import com.som.deliveryplatform.domain.user.repository.UserRepository;
 import com.som.deliveryplatform.global.auth.model.TokenModel;
-import com.som.deliveryplatform.global.common.ResponseCode;
 import com.som.deliveryplatform.support.JwtTestHelper;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.*;
@@ -25,7 +24,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.List;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -92,9 +90,7 @@ class OrderIntegrationTest {
                         .header("IdempotencyKey", idempotencyKey)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(orderRequest)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.code").value(ResponseCode.SUCCESS.name()))
-                .andExpect(jsonPath("$.data.orderId").exists())
+                .andExpect(status().isOk())
         ;
     }
 
