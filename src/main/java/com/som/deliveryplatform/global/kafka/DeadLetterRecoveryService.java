@@ -23,7 +23,7 @@ public class DeadLetterRecoveryService {
             kafkaTemplate.send(originalTopic, message);
             log.info("Dead letter message successfully resend to topic: {}", originalTopic);
         } catch (Exception e) {
-            throw new RuntimeException("Dead letter reconery failed", e);
+            throw new RuntimeException("Dead letter recovery failed", e);
         }
     }
 }
